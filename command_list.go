@@ -2,15 +2,22 @@ package main
 
 import "fmt"
 
+/*
+	type Command struct {
+		command        string
+		parameters     map[string]float64
+		subCommandList []interface{}
+	}
+*/
 type CommandList struct {
 	arr               []interface{}
 	previous_position Vector3d
 }
 
 // Add a Movement
-func (c *CommandList) AddMovement(movement Movement) {
-	movement.set_start_position(c.previous_position)
-	c.previous_position = movement.get_end_position()
+func (c *CommandList) addMovement(movement Movement) {
+	movement.setStartPosition(c.previous_position)
+	c.previous_position = movement.getEndPosition()
 
 	c.arr = append(c.arr, movement)
 

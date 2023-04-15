@@ -1,28 +1,49 @@
 // hello world
 package main
 
-// Calculate accelerations
-// Transform to constant acceleration
-// Interpolate to constant velocity
-// GCode parser
+import "fmt"
+
+// Transform to constant acceleration segments
+// Interpolate to linear movements by steps of 1 ms
+// Manage axis in Arc Movements
+// Convert velocities to steps/s and acceleration to step/s2
+// Make the algorithm real time (allow recalculation if feedrate is overridden during execution)
+
+// Solution 1
+//    Decelerate from 100% to 0
+//    + Simple
+//    - Deceleration can be faster
+// Solution 2
+//    Decelerate with the machine max acceleration
+//    + Deceleration is optimal
+//    - MCU needs to be able to calculate the deceleratio
+// Solution 3
+//    Move calculation to the machine
+
 func main() {
 
 	// Create a Motion Planner
 	// New machine configuration
-	gcode_parser := NewGCodeParser()
-	gcode_parser.Parse("test.gcode")
+	gcode_parser := newGCodeParser()
+	parsedGCode := gcode_parser.fromFile("test.gcode")
 
-	machineConfiguration := NewMachineConfiguration(Vector3d{X: 100, Y: 100, Z: 100}, Vector3d{X: 100, Y: 100, Z: 100}, 0.1)
-	motionPlanner := NewMotionPlanner(machineConfiguration)
+	for _, command := range parsedGCode {
+		fmt.Println(command.description)
+	}
 
-	motionPlanner.command_list.AddMovement(NewLinearMovement(Vector3d{X: 8, Y: 0, Z: 0}, 50))
-	motionPlanner.command_list.AddMovement(NewLinearMovement(Vector3d{X: 10, Y: 0, Z: 0}, 50))
-	motionPlanner.command_list.AddMovement(NewLinearMovement(Vector3d{X: 0, Y: 0, Z: 0}, 10))
-	motionPlanner.command_list.AddMovement(NewCircularMovement(Vector3d{X: 2, Y: 0, Z: 0}, Vector3d{X: 1, Y: 0, Z: 0}, 10, true, ZAxis))
+	machineConfiguration := newMachineConfiguration(
+		Vector3d{X: 80, Y: 90, Z: 100},
+		Vector3d{X: 50, Y: 40, Z: 100},
+		100,
+		0.1)
+
+	motionPlanner := newMotionPlanner(machineConfiguration)
+
+	motionPlanner.fromParsedGcode(parsedGCode)
 
 	// Add the movement to the array
 
-	//test := NewLinearMovement(Vector3d{X: 1, Y: 0, Z: 0}, 10)
+	//test := newLinearMovement(Vector3d{X: 1, Y: 0, Z: 0}, 10)
 
 	motionPlanner.run()
 

@@ -3,31 +3,60 @@ package main
 import "math"
 
 type MachineConfiguration struct {
-	max_acceleration         Vector3d
-	max_velocity             Vector3d
+	maxAcceleraction         Vector3d
+	maxVelocity              Vector3d
+	rapidVelocity            float64
 	path_deviation_tolerance float64
 }
 
-// NewMachineConfiguration creates a new machine configuration
-func NewMachineConfiguration(max_acceleration Vector3d, max_velocity Vector3d, path_deviation_tolerance float64) *MachineConfiguration {
-	return &MachineConfiguration{max_acceleration: max_acceleration, max_velocity: max_velocity, path_deviation_tolerance: path_deviation_tolerance}
+// newMachineConfiguration creates a new machine configuration
+func newMachineConfiguration(maxAcceleraction Vector3d, maxVelocity Vector3d, rapidVelocity float64, path_deviation_tolerance float64) *MachineConfiguration {
+	return &MachineConfiguration{maxAcceleraction: maxAcceleraction, maxVelocity: maxVelocity, rapidVelocity: rapidVelocity, path_deviation_tolerance: path_deviation_tolerance}
 }
 
-func (m *MachineConfiguration) get_max_acceleration_scalar() float64 {
+func (m *MachineConfiguration) getMaxVelocity(direction Vector3d) float64 {
+
+	// Project the max velocity vector onto the direction vector
+	maxVelocity := math.Abs(m.maxVelocity.Dot(direction) / direction.length())
+	return maxVelocity
+}
+
+func (m *MachineConfiguration) getMaxAcceleraction_scalar() float64 {
 	// Get the max acceleration scalar
-	max_acceleration_scalar := m.max_acceleration.X
-	if m.max_acceleration.Y > max_acceleration_scalar {
-		max_acceleration_scalar = m.max_acceleration.Y
+	maxAcceleraction_scalar := m.maxAcceleraction.X
+	if m.maxAcceleraction.Y < maxAcceleraction_scalar {
+		maxAcceleraction_scalar = m.maxAcceleraction.Y
 	}
-	if m.max_acceleration.Z > max_acceleration_scalar {
-		max_acceleration_scalar = m.max_acceleration.Z
+	if m.maxAcceleraction.Z < maxAcceleraction_scalar {
+		maxAcceleraction_scalar = m.maxAcceleraction.Z
 	}
-	return max_acceleration_scalar
+	return maxAcceleraction_scalar
+}
+
+func (m *MachineConfiguration) getMaxAcceleractionForTwoVectors(start_direction Vector3d, end_direction Vector3d) float64 {
+	maxAcceleration := m.maxAcceleraction.max()
+	if start_direction.X != 0 || end_direction.X != 0 {
+		if m.maxAcceleraction.X < maxAcceleration {
+			maxAcceleration = m.maxAcceleraction.X
+		}
+	}
+	if start_direction.Y != 0 || end_direction.Y != 0 {
+		if m.maxAcceleraction.Y < maxAcceleration {
+			maxAcceleration = m.maxAcceleraction.Y
+		}
+	}
+	if start_direction.Z != 0 || end_direction.Z != 0 {
+		if m.maxAcceleraction.Z < maxAcceleration {
+			maxAcceleration = m.maxAcceleraction.Z
+		}
+	}
+
+	return maxAcceleration
 }
 
 // Get max acceleration for a given direction
-func (m *MachineConfiguration) get_max_acceleration(start_direction Vector3d, end_direction Vector3d) float64 {
+func (m *MachineConfiguration) getMaxAcceleraction(start_direction Vector3d, end_direction Vector3d) float64 {
 	// project the max acceleration vector onto the direction vector
-	acceleration := math.Abs(m.max_acceleration.Dot(start_direction) / start_direction.Length())
+	acceleration := math.Abs(m.maxAcceleraction.Dot(start_direction) / start_direction.length())
 	return acceleration
 }

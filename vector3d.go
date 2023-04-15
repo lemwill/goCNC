@@ -32,15 +32,16 @@ func (v Vector3d) GoString() string {
 	return v.String()
 }
 
-// Normalize
-func (v Vector3d) Normalize() Vector3d {
-	length := v.Length()
+// normalize
+func (v Vector3d) normalize() Vector3d {
+	length := v.length()
 	return Vector3d{X: v.X / length, Y: v.Y / length, Z: v.Z / length}
 }
 
-// Length
-func (v Vector3d) Length() float64 {
-	return math.Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z)
+// length
+func (v Vector3d) length() float64 {
+	length_squared := v.X*v.X + v.Y*v.Y + v.Z*v.Z
+	return math.Sqrt(length_squared)
 }
 
 // dot product
@@ -50,7 +51,11 @@ func (v Vector3d) Dot(v2 Vector3d) float64 {
 
 // Angle with
 func (v Vector3d) AngleWith(v2 Vector3d) float64 {
-	ratio := v.Dot(v2) / (v.Length() * v2.Length())
+	ratio := v.Dot(v2) / (v.length() * v2.length())
+
+	if ratio > 1 {
+		ratio = 1
+	}
 
 	return math.Acos(ratio)
 }
@@ -78,12 +83,21 @@ func (v Vector3d) Rotate90(axis Axis, clockwise bool) Vector3d {
 	return v
 }
 
+func (v Vector3d) max() float64 {
+	return math.Max(math.Max(v.X, v.Y), v.Z)
+}
+
 // Add two vectors
 func (v Vector3d) Add(v2 Vector3d) Vector3d {
 	return Vector3d{X: v.X + v2.X, Y: v.Y + v2.Y, Z: v.Z + v2.Z}
 }
 
-// Subtract two vectors
-func (v Vector3d) Subtract(v2 Vector3d) Vector3d {
+// subtract two vectors
+func (v Vector3d) subtract(v2 Vector3d) Vector3d {
 	return Vector3d{X: v.X - v2.X, Y: v.Y - v2.Y, Z: v.Z - v2.Z}
+}
+
+// Cross
+func (v Vector3d) Cross(v2 Vector3d) Vector3d {
+	return Vector3d{X: v.Y*v2.Z - v.Z*v2.Y, Y: v.Z*v2.X - v.X*v2.Z, Z: v.X*v2.Y - v.Y*v2.X}
 }
