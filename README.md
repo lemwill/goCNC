@@ -7,4 +7,7 @@
 Install Go: https://go.dev/doc/install
 
 ## Compilation
+# Code snippet
+```console
 go run .
+```
