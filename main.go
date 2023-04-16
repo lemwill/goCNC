@@ -1,7 +1,13 @@
 // hello world
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"goCNC_protocol"
+	"log"
+
+	"google.golang.org/protobuf/proto"
+)
 
 // Transform to constant acceleration segments
 // Interpolate to linear movements by steps of 1 ms
@@ -21,6 +27,19 @@ import "fmt"
 //    Move calculation to the machine
 
 func main() {
+
+	person := &goCNC_protocol.Person{
+		Name: "John Doe",
+		Age:  30,
+	}
+
+	data, err := proto.Marshal(person)
+	if err != nil {
+		log.Fatal("marshaling error: ", err)
+	}
+
+	fmt.Println(data)
+	return
 
 	// Create a Motion Planner
 	// New machine configuration
